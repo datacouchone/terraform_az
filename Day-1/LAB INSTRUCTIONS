@@ -1,0 +1,278 @@
+Terraform Lab Instructions – Deploying an Azure VM with Network Components
+🎯 Lab Objective
+
+----------------------------------
+
+Variables That Need to Be Unique
+1. environment
+
+Used in naming:
+
+Resource Group → "${var.environment}-resources"
+
+VNet → "${var.environment}-network"
+
+NIC → "${var.environment}-nic"
+
+VM → "${var.environment}-vm"
+
+➡ Must be unique IF you are deploying multiple environments into the same subscription (e.g., dev, staging, prod).
+Otherwise names will conflict.
+
+2. Azure Storage Account Name (Not in variables, but referenced from backend)
+
+This you defined in backend.tf, not variables — BUT storage account names must be globally unique across all Azure.
+
+3. Virtual Network Address Space (network_config[0])
+
+Example: "10.0.0.0/16"
+
+➡ Must be unique within the same Azure region + subscription.
+Two VNets may overlap if not peered, but it is a bad practice.
+If you plan to peer VNets → must be unique and non-overlapping.
+
+4. Subnet address + mask (network_config[1] and [2])
+
+Example: "10.0.2.0" with 24
+
+➡ Must be unique within the virtual network.
+
+5. VM storage disk name
+
+From the VM:
+
+storage_os_disk {
+  name = "myosdisk1"
+}
+
+
+➡ If you deploy multiple VMs, this must be unique per VM, otherwise the disk name will clash.
+
+Not a variable right now — but should be made one if reusing code.
+
+🆗 Variables That Do NOT Need to Be Unique
+
+These can repeat with no issues:
+
+storage_disk
+
+is_delete
+
+allowed_locations
+
+resource_tags
+
+allowed_vm_sizes
+
+vm_config
+
+network_config (only needs uniqueness as explained above)
+
+Summary Table
+Variable	Must Be Unique?	Why
+environment	✔ Yes (for multiple deployments)	Prevents resource name conflicts
+network_config[0]	✔ Yes	VNet address must not overlap (best practice)
+network_config[1] + [2]	✔ Yes	Subnet must be unique inside VNet
+storage account name	✔ Globally	Azure global name restriction
+disk name (myosdisk1)	✔ Per VM	Disk names must be unique
+
+Everything else can be reused.
+
+If you want, I can refactor your code so that every resource name becomes automatically unique using:
+
+random_string
+
+or local.prefix
+
+or ${var.environment}-${random_id.suffix.hex}
+
+In this lab, you will deploy a complete Azure environment using Terraform.
+You will provision:
+
+A Resource Group
+
+A Virtual Network (VNET)
+
+A Subnet
+
+A Network Interface (NIC)
+
+A Linux Virtual Machine
+
+Infrastructure components driven by variables, lists, maps, tuples, and objects
+
+This lab teaches Terraform fundamentals such as variable types, interpolation, resource referencing, and dependency flow.
+
+📁 1. Lab Prerequisites
+
+Before you begin:
+
+Required Software
+
+Terraform v1.9.0 or higher
+
+Azure CLI
+
+Any text editor (VS Code recommended)
+
+Login to Azure
+az login
+
+
+If using a Service Principal:
+
+az login --service-principal --username "<APP_ID>" --password "<PASSWORD>" --tenant "<TENANT_ID>"
+
+📂 2. File Structure
+
+Create a working folder:
+
+terraform-lab/
+ ├── main.tf
+ └── variables.tf
+
+
+Paste the resources into main.tf and variables into variables.tf.
+
+🧩 3. Understanding the Terraform Configuration
+Step 1 — Create the Resource Group
+resource "azurerm_resource_group" "example" {
+  name     = "${var.environment}-resources"
+  location = var.allowed_locations[1]
+}
+
+
+Name is based on the environment variable (example: staging-resources)
+
+Location is taken from a list (East US)
+
+Step 2 — Create Virtual Network
+resource "azurerm_virtual_network" "main" {
+  name                = "${var.environment}-network"
+  address_space       = [element(var.network_config,0)]
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+}
+
+
+Uses a tuple for VNET address space
+
+Implicit dependency via resource references
+
+Step 3 — Create Subnet
+address_prefixes = ["${element(var.network_config, 1)}/${element(var.network_config, 2)}"]
+
+
+Subnet address is built using tuple values:
+
+10.0.2.0 + /24 → 10.0.2.0/24
+
+Step 4 — Create Network Interface
+
+NIC attaches VM to the subnet:
+
+ip_configuration {
+  subnet_id = azurerm_subnet.internal.id
+}
+
+Step 5 — Create Virtual Machine
+
+The VM is created using:
+
+NIC ID
+
+OS Disk configuration
+
+Image details from object variable
+
+Tags from a map variable
+
+You will learn how Terraform handles:
+
+Objects
+
+Maps
+
+Lists
+
+Booleans
+
+Strings
+
+Number variables
+
+⚙️ 4. Variables Explanation
+Environment Variable (String)
+
+Defines naming consistency across all resources.
+
+Storage Disk (Number)
+
+Controls VM OS disk size.
+
+is_delete (Boolean)
+
+Decides if disk should be deleted when VM is destroyed.
+
+Network Configuration (Tuple)
+["10.0.0.0/16", "10.0.2.0", 24]
+
+
+VNET CIDR
+
+Subnet address
+
+Subnet mask
+
+Allowed Locations (List)
+
+Pick any index:
+
+0 = West Europe
+
+1 = East US
+
+2 = East Europe
+
+Resource Tags (Map)
+
+Inject custom tags into VM.
+
+Allowed VM Sizes (List)
+
+First entry is used: Standard_DS1_v2
+
+VM Config (Object)
+
+Defines publisher, offer, SKU, and version of the VM image.
+
+🛠️ 5. Running the Lab
+Step 1 — Initialize Terraform
+terraform init
+
+Step 2 — Validate Syntax
+terraform validate
+
+Step 3 — Preview Changes
+terraform plan
+
+Step 4 — Deploy Resources
+terraform apply -auto-approve
+
+Step 5 — Verify in Azure
+az vm list -o table
+az network nic list -o table
+az network vnet list -o table
+
+🧹 6. Clean Up
+terraform destroy -auto-approve
+
+🏁 Lab Complete
+
+By completing this lab, you learned:
+
+✔ How Terraform uses variables of all types
+✔ How resources reference each other
+✔ Implicit vs explicit dependencies
+✔ Building a VM with a VNET, subnet, NIC, and tags
+✔ How Terraform deploys and destroys Azure resources
