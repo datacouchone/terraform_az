@@ -5,7 +5,7 @@ Lifecycle meta‑arguments help you:
 Create a new resource before destroying the old one (create_before_destroy)
 Prevent a resource from being destroyed at all (prevent_destroy)
 Ignore certain attribute changes, even if they are changed in the real infrastructure (ignore_changes)
-Trigger resource replacement when specified dependencies change (replace_triggered_by) 
+Trigger resource replacement when specified dependencies change (replace_triggered_by) .
 
 2. Why Use Lifecycle Rules
 
