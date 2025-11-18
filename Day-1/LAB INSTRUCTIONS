@@ -14,7 +14,7 @@ Variables That Need to Be Unique
 
 Used in naming:
 
-Resource Group → "${var.environment}-resources"
+Resource Group → "${var.environment}-resources" --> -resources and following names after - please make them unique
 
 VNet → "${var.environment}-network"
 
