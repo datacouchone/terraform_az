@@ -1,0 +1,21 @@
+| Command                                                           | Purpose / Usage                                                                                                        |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **`terraform init`**                                              | Initialize a Terraform working directory. Downloads providers, sets up the backend. Must run **before anything else**. |
+| **`terraform validate`**                                          | Validates the syntax of your Terraform files. Checks HCL correctness but **does not interact with the cloud**.         |
+| **`terraform fmt`**                                               | Formats Terraform files to canonical HCL style. Keeps code consistent.                                                 |
+| **`terraform plan`**                                              | Shows what changes Terraform will make in your infrastructure. **No changes applied yet**.                             |
+| **`terraform apply`**                                             | Applies changes to reach the desired state. Prompts for confirmation unless `-auto-approve` is used.                   |
+| **`terraform destroy`**                                           | Destroys all managed resources in your Terraform state. Prompts for confirmation unless `-auto-approve` is used.       |
+| **`terraform show`**                                              | Displays the current Terraform state in a human-readable format.                                                       |
+| **`terraform output`**                                            | Shows the values of output variables defined in Terraform. Useful for referencing created resources.                   |
+| **`terraform refresh`**                                           | Updates the Terraform state to match real-world infrastructure. Usually done automatically during `plan` or `apply`.   |
+| **`terraform state list`**                                        | Lists all resources currently tracked in Terraform state.                                                              |
+| **`terraform state show <resource>`**                             | Shows detailed state information for a single resource.                                                                |
+| **`terraform import <resource> <id>`**                            | Imports an existing infrastructure object into Terraform state.                                                        |
+| **`terraform taint <resource>`** *(deprecated in newer versions)* | Marks a resource for recreation on next `apply`. Use `terraform apply -replace=<resource>` instead.                    |
+| **`terraform workspace list`**                                    | Lists Terraform workspaces (environments).                                                                             |
+| **`terraform workspace new <name>`**                              | Creates a new workspace. Useful for dev/staging/prod environments.                                                     |
+| **`terraform workspace select <name>`**                           | Switches to an existing workspace.                                                                                     |
+| **`terraform graph`**                                             | Generates a visual dependency graph of resources. Useful for understanding complex setups.                             |
+| **`terraform providers`**                                         | Lists all providers used in the configuration.                                                                         |
+| **`terraform fmt -recursive`**                                    | Recursively formats all Terraform files in the directory tree.                                                         |
