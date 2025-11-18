@@ -1,0 +1,83 @@
+1. Overview
+
+In the Terraform repo datacouchone/terraform_az → Day-1 / 6‑Lifecycle Validation, you explore Terraform’s lifecycle meta‑arguments. These are powerful tools to control how Terraform creates, updates, or deletes resources.
+Lifecycle meta‑arguments help you:
+Create a new resource before destroying the old one (create_before_destroy)
+Prevent a resource from being destroyed at all (prevent_destroy)
+Ignore certain attribute changes, even if they are changed in the real infrastructure (ignore_changes)
+Trigger resource replacement when specified dependencies change (replace_triggered_by) 
+
+2. Why Use Lifecycle Rules
+
+Zero‑downtime deployments: By using create_before_destroy = true, Terraform can spin up a new version of a resource before tearing down the old one. This avoids service disruption. 
+HashiCorp | An IBM Company
+Protect critical resources: Use prevent_destroy = true for resources like databases or production VMs to avoid accidental deletion. 
+HashiCorp Developer
+Manage external changes: When something else changes a resource (e.g. tags changed by another system), ignore_changes can prevent Terraform from reverting them. 
+Controlled replacement: replace_triggered_by allows you to specify that a resource should be replaced when certain other resources or attributes change.
+
+3. Key Lifecycle Meta‑Arguments Explained
+
+Here are the main lifecycle arguments that are likely covered in the lab:
+
+Meta‑argument	Type	What It Does
+create_before_destroy	bool	Ensures Terraform creates a new resource first, before destroying the old one. 
+HashiCorp Developer
+
+prevent_destroy	bool	Prevents Terraform from destroying the resource. Any plan that tries to destroy it will error out. 
+HashiCorp Developer
+
+ignore_changes	list(string)	Tells Terraform to ignore changes to specific attributes when planning updates. 
+docs.devnetexperttraining.com
+
+replace_triggered_by	list(object or resource reference)	Forces a resource replacement when certain dependencies or attributes change. 
+devopsschool.com
+
+4. Lab Tasks / Exercises
+
+Here are possible tasks you can do with the “6‑Lifecycle Validation” code in that GitHub repo:
+Inspect existing code
+Open the Terraform files in Day-1/6‑Lifecycle Validation.
+Identify which resources use a lifecycle { … } block.
+Add create_before_destroy
+Pick a resource (e.g. a VM or a storage account).
+Add create_before_destroy = true to its lifecycle.
+Run terraform plan and terraform apply.
+Change a property (e.g. VM size or tag) and apply again.
+
+Observe that Terraform first creates the new resource before deleting the old one.
+
+Try prevent_destroy
+Add prevent_destroy = true to a resource.
+Run terraform plan then terraform destroy.
+Observe that Terraform refuses to destroy that resource.
+Use ignore_changes
+Add ignore_changes = ["tags"] (or another attribute) to a resource.
+Change that attribute manually in the Azure portal
+Run terraform plan.
+Observe Terraform does not plan to revert that manual change.
+Combine lifecycle settings
+Use create_before_destroy + ignore_changes together in a resource.
+Test updating and destroying in different scenarios.
+Read and discuss documentation
+
+Review the Terraform Lifecycle Meta‑Argument documentation. 
+
+
+Explain when it's safe or dangerous to use prevent_destroy.
+
+5. Best Practices & Warnings
+
+Use with caution: prevent_destroy is powerful but can block intentional destroy operations—document it clearly.
+Unique names required: If using create_before_destroy, make sure resource names allow both the old and new instance to coexist without naming conflicts. 
+
+Literal values only: Lifecycle arguments must be literal values, not computed expressions. 
+Test lifecycle changes: Always test in a non‑production environment first.
+
+6. Wrapping Up
+
+By completing the “Lifecycle Validation” lab, you will gain:
+Real-life experience using Terraform lifecycle meta-arguments
+Understanding of advanced resource management strategies
+Skills to make infrastructure safer (reduce risk of accidental deletion)
+Confidence in planning zero-downtime changes
