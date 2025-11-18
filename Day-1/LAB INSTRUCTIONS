@@ -1,3 +1,6 @@
+ALWAYS ADD THE ENV VARIABLES TO THE TERMINAL IF TERMINAL GETS CLOSED
+COPY FROM env.sh FILE
+
 Terraform Lab Instructions – Deploying an Azure VM with Network Components
 🎯 Lab Objective
 
