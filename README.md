@@ -1,3 +1,1 @@
-# terraform_az
-# terraform_az
-# terraform_az
+Terraform Azure 3 day hands on workshop
